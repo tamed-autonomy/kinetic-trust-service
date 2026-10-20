@@ -1,0 +1,181 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+env:
+  PYTHONDONTWRITEBYTECODE: "1"
+
+jobs:
+  tests:
+    name: tests (python ${{ matrix.python-version }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.11", "3.12", "3.13", "3.14", "3.15"]
+    steps:
+      - name: Check out Service
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Check out exact public Library revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: tamed-autonomy/kinetic-trust-library
+          ref: d5696f45e0172efd3449bc0140befde729a4dfc7
+          path: _library
+          persist-credentials: false
+      - name: Install build frontend
+        run: python -m pip install build==1.5.0
+      - name: Build and install Library wheel
+        run: |
+          mkdir -p "$RUNNER_TEMP/library-dist"
+          python -m build --wheel --outdir "$RUNNER_TEMP/library-dist" _library
+          test -f "$RUNNER_TEMP/library-dist/kinetic_trust_library-1.0.0-py3-none-any.whl"
+          python -m pip install --no-index --no-deps \
+            "$RUNNER_TEMP/library-dist/kinetic_trust_library-1.0.0-py3-none-any.whl"
+      - name: Run Service tests
+        run: PYTHONPATH=src python -m unittest discover -s tests -t . -v
+
+  package:
+    name: package
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out Service
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97
+        with:
+          python-version: "3.11"
+      - name: Check out exact public Library revision
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: tamed-autonomy/kinetic-trust-library
+          ref: d5696f45e0172efd3449bc0140befde729a4dfc7
+          path: _library
+          persist-credentials: false
+      - name: Install build frontend
+        run: python -m pip install build==1.5.0
+      - name: Build and install Library wheel
+        run: |
+          mkdir -p "$RUNNER_TEMP/library-dist"
+          python -m build --wheel --outdir "$RUNNER_TEMP/library-dist" _library
+          test -f "$RUNNER_TEMP/library-dist/kinetic_trust_library-1.0.0-py3-none-any.whl"
+          python -m pip install --no-index --no-deps \
+            "$RUNNER_TEMP/library-dist/kinetic_trust_library-1.0.0-py3-none-any.whl"
+      - name: Build Service artifacts
+        run: python -m build
+      - name: Inspect Service artifacts
+        run: |
+          python - <<'PY'
+          from email.parser import BytesParser
+          from email.policy import default
+          from pathlib import Path, PurePosixPath
+          import re
+          import tarfile
+          import zipfile
+
+          wheel = Path("dist/kinetic_trust_service-1.0.0-py3-none-any.whl")
+          sdist = Path("dist/kinetic_trust_service-1.0.0.tar.gz")
+          assert sorted(p.name for p in Path("dist").iterdir()) == [
+              wheel.name, sdist.name
+          ]
+          with zipfile.ZipFile(wheel) as archive:
+              names = archive.namelist()
+              metadata_names = [
+                  n for n in names if n.endswith(".dist-info/METADATA")
+              ]
+              assert len(metadata_names) == 1
+              metadata = BytesParser(policy=default).parsebytes(
+                  archive.read(metadata_names[0])
+              )
+              assert metadata["Name"] == "kinetic-trust-service"
+              assert metadata["Version"] == "1.0.0"
+              assert metadata["License-Expression"] == "Apache-2.0"
+              requirements = metadata.get_all("Requires-Dist", [])
+              assert len(requirements) == 1
+              requirement = requirements[0].replace(" ", "")
+              assert re.fullmatch(
+                  r"kinetic-trust-library"
+                  r"(?:>=1\.0\.0,<1\.1\.0|<1\.1\.0,>=1\.0\.0)",
+                  requirement,
+              )
+              assert metadata.get_all("Provides-Extra", []) == []
+              payload = [n for n in names if ".dist-info/" not in n]
+              assert payload and all(
+                  n.startswith("kinetic_trust_service/") for n in payload
+              )
+          allowed = {
+              ".gitignore", "CONTEXT.md", "LICENSE", "NOTICE", "PKG-INFO",
+              "README.md", "pyproject.toml",
+          }
+          with tarfile.open(sdist, "r:gz") as archive:
+              members = [m.name for m in archive if m.isfile()]
+          relative = []
+          for name in members:
+              parts = PurePosixPath(name).parts
+              assert parts[0] == "kinetic_trust_service-1.0.0"
+              relative.append(PurePosixPath(*parts[1:]).as_posix())
+          assert {"CONTEXT.md", "LICENSE", "NOTICE", "README.md",
+                  "pyproject.toml"}.issubset(relative)
+          assert all(
+              n in allowed or n.startswith("src/kinetic_trust_service/")
+              for n in relative
+          )
+          assert not any(n.startswith(".github/") for n in relative)
+          PY
+      - name: Verify isolated installed packages
+        run: |
+          python -m venv "$RUNNER_TEMP/installed"
+          "$RUNNER_TEMP/installed/bin/python" -m pip install --no-index --no-deps \
+            "$RUNNER_TEMP/library-dist/kinetic_trust_library-1.0.0-py3-none-any.whl" \
+            dist/kinetic_trust_service-1.0.0-py3-none-any.whl
+          cd "$RUNNER_TEMP"
+          "$RUNNER_TEMP/installed/bin/python" -I - <<'PY'
+          from importlib.metadata import version
+          from importlib.util import find_spec
+          import kinetic_trust_library
+          import kinetic_trust_service
+
+          assert version("kinetic-trust-library") == "1.0.0"
+          assert version("kinetic-trust-service") == "1.0.0"
+          assert find_spec("kinetic_trust_core") is None
+          assert kinetic_trust_library is not None
+          assert kinetic_trust_service.__all__ == (
+              "EvaluatedWithoutProof", "EvidenceAdapter",
+              "EvidenceAdapterError", "EvidenceHost", "EvidenceQuery",
+              "IssuanceOutcome", "IssuedProof", "Issuer", "RejectedIssuance",
+          )
+          PY
+
+  required:
+    name: required
+    if: ${{ always() }}
+    needs: [tests, package]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Require every mandatory CI job
+        env:
+          TESTS_RESULT: ${{ needs.tests.result }}
+          PACKAGE_RESULT: ${{ needs.package.result }}
+        run: |
+          test "$TESTS_RESULT" = success
+          test "$PACKAGE_RESULT" = success
