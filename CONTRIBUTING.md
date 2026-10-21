@@ -38,7 +38,7 @@ PYTHONPATH:
     "$WORK_DIR/venv/bin/python" -m build --wheel \
       --outdir "$WORK_DIR/library-dist" "$LIBRARY_CHECKOUT"
     "$WORK_DIR/venv/bin/python" -m pip install --no-index --no-deps \
-      "$WORK_DIR/library-dist/kinetic_trust_library-1.0.0-py3-none-any.whl"
+      "$WORK_DIR/library-dist/kinetic_trust_library-2.1.0-py3-none-any.whl"
     PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src \
       "$WORK_DIR/venv/bin/python" -m unittest discover -s tests -t . -v
 

@@ -3,21 +3,22 @@
 The routinely tested support set is CPython 3.11 through 3.15.
 
 **KTP Library**: The umbrella artifact, packaged as
-`kinetic-trust-library` 1.0.0 and imported as `kinetic_trust_library`, providing
+`kinetic-trust-library` 2.1.0 and imported as `kinetic_trust_library`, providing
 RFC-faithful KTP v2.1.0 semantics, models, evaluation, records, and proof rules.
 
 **KTP-Core**: The formal protocol semantics and Library's internal core module,
 not the umbrella artifact or a separate Service dependency.
 
-**Service**: Packaged as `kinetic-trust-service` 1.0.0 and imported as
+**Service**: Packaged as `kinetic-trust-service` 2.1.0 and imported as
 `kinetic_trust_service`. Replaceable synchronous composition conveniences, not
 a product or semantic authority. Consumers can replace Service or call Library
 directly without losing KTP semantics.
 
-**Compatibility series**: Library and Service share a `major.minor` series,
-with independent patch versions. Service 1.0.0 depends on
-`kinetic-trust-library>=1.0.0,<1.1.0`. Package versions are distinct from the
-KTP v2.1.0 specification version.
+**Compatibility series**: Library and Service package `major.minor` versions
+track the implemented KTP RFC series, with independent patch versions. Service
+2.1.0 depends on `kinetic-trust-library>=2.1.0,<2.2.0`. Both packages remain
+pinned to the immutable KTP v2.1.0 specification tag; a package patch release
+does not imply a new KTP specification version.
 
 **Product**: The consuming system that owns source authenticity/completeness,
 configuration, credentials, storage, retention, transport, retries,

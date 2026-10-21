@@ -34,7 +34,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: tamed-autonomy/kinetic-trust-library
-          ref: d5696f45e0172efd3449bc0140befde729a4dfc7
+          ref: be98869ab96d4b45b181a4539429deae92c2b932
           path: _library
           persist-credentials: false
       - name: Install build frontend
@@ -43,9 +43,9 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/library-dist"
           python -m build --wheel --outdir "$RUNNER_TEMP/library-dist" _library
-          test -f "$RUNNER_TEMP/library-dist/kinetic_trust_library-1.0.0-py3-none-any.whl"
+          test -f "$RUNNER_TEMP/library-dist/kinetic_trust_library-2.1.0-py3-none-any.whl"
           python -m pip install --no-index --no-deps \
-            "$RUNNER_TEMP/library-dist/kinetic_trust_library-1.0.0-py3-none-any.whl"
+            "$RUNNER_TEMP/library-dist/kinetic_trust_library-2.1.0-py3-none-any.whl"
       - name: Run Service tests
         run: PYTHONPATH=src python -m unittest discover -s tests -t . -v
 
@@ -67,7 +67,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: tamed-autonomy/kinetic-trust-library
-          ref: d5696f45e0172efd3449bc0140befde729a4dfc7
+          ref: be98869ab96d4b45b181a4539429deae92c2b932
           path: _library
           persist-credentials: false
       - name: Install build frontend
@@ -76,9 +76,9 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/library-dist"
           python -m build --wheel --outdir "$RUNNER_TEMP/library-dist" _library
-          test -f "$RUNNER_TEMP/library-dist/kinetic_trust_library-1.0.0-py3-none-any.whl"
+          test -f "$RUNNER_TEMP/library-dist/kinetic_trust_library-2.1.0-py3-none-any.whl"
           python -m pip install --no-index --no-deps \
-            "$RUNNER_TEMP/library-dist/kinetic_trust_library-1.0.0-py3-none-any.whl"
+            "$RUNNER_TEMP/library-dist/kinetic_trust_library-2.1.0-py3-none-any.whl"
       - name: Build Service artifacts
         run: python -m build
       - name: Inspect Service artifacts
@@ -91,8 +91,8 @@ jobs:
           import tarfile
           import zipfile
 
-          wheel = Path("dist/kinetic_trust_service-1.0.0-py3-none-any.whl")
-          sdist = Path("dist/kinetic_trust_service-1.0.0.tar.gz")
+          wheel = Path("dist/kinetic_trust_service-2.1.0-py3-none-any.whl")
+          sdist = Path("dist/kinetic_trust_service-2.1.0.tar.gz")
           assert sorted(p.name for p in Path("dist").iterdir()) == [
               wheel.name, sdist.name
           ]
@@ -106,14 +106,14 @@ jobs:
                   archive.read(metadata_names[0])
               )
               assert metadata["Name"] == "kinetic-trust-service"
-              assert metadata["Version"] == "1.0.0"
+              assert metadata["Version"] == "2.1.0"
               assert metadata["License-Expression"] == "Apache-2.0"
               requirements = metadata.get_all("Requires-Dist", [])
               assert len(requirements) == 1
               requirement = requirements[0].replace(" ", "")
               assert re.fullmatch(
                   r"kinetic-trust-library"
-                  r"(?:>=1\.0\.0,<1\.1\.0|<1\.1\.0,>=1\.0\.0)",
+                  r"(?:>=2\.1\.0,<2\.2\.0|<2\.2\.0,>=2\.1\.0)",
                   requirement,
               )
               assert metadata.get_all("Provides-Extra", []) == []
@@ -130,7 +130,7 @@ jobs:
           relative = []
           for name in members:
               parts = PurePosixPath(name).parts
-              assert parts[0] == "kinetic_trust_service-1.0.0"
+              assert parts[0] == "kinetic_trust_service-2.1.0"
               relative.append(PurePosixPath(*parts[1:]).as_posix())
           assert {"CONTEXT.md", "LICENSE", "NOTICE", "README.md",
                   "pyproject.toml"}.issubset(relative)
@@ -144,8 +144,8 @@ jobs:
         run: |
           python -m venv "$RUNNER_TEMP/installed"
           "$RUNNER_TEMP/installed/bin/python" -m pip install --no-index --no-deps \
-            "$RUNNER_TEMP/library-dist/kinetic_trust_library-1.0.0-py3-none-any.whl" \
-            dist/kinetic_trust_service-1.0.0-py3-none-any.whl
+            "$RUNNER_TEMP/library-dist/kinetic_trust_library-2.1.0-py3-none-any.whl" \
+            dist/kinetic_trust_service-2.1.0-py3-none-any.whl
           cd "$RUNNER_TEMP"
           "$RUNNER_TEMP/installed/bin/python" -I - <<'PY'
           from importlib.metadata import version
@@ -153,8 +153,8 @@ jobs:
           import kinetic_trust_library
           import kinetic_trust_service
 
-          assert version("kinetic-trust-library") == "1.0.0"
-          assert version("kinetic-trust-service") == "1.0.0"
+          assert version("kinetic-trust-library") == "2.1.0"
+          assert version("kinetic-trust-service") == "2.1.0"
           assert find_spec("kinetic_trust_core") is None
           assert kinetic_trust_library is not None
           assert kinetic_trust_service.__all__ == (

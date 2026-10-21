@@ -1,6 +1,6 @@
 # Kinetic Trust Service
 
-`kinetic-trust-service` 1.0.0 is a synchronous library of KTP v2.1.0
+`kinetic-trust-service` 2.1.0 is a synchronous library of KTP v2.1.0
 evidence and issuance composition helpers. It is not a product or a runtime
 service. Library owns RFC-faithful semantics and `DecisionRecord`; Service
 provides replaceable conveniences for invoking product-supplied evidence
@@ -80,14 +80,14 @@ representing this summary as certification evidence.
 ## Install
 
 Python 3.11 or newer is required; the routinely tested support set is
-CPython 3.11 through 3.15. When version 1.0.0 appears on the
+CPython 3.11 through 3.15. When version 2.1.0 appears on the
 [PyPI project page](https://pypi.org/project/kinetic-trust-service/), install
 it in a local virtual environment; its compatible Library dependency is
 installed automatically:
 
 ```bash
 python3 -m venv .venv
-.venv/bin/python -m pip install 'kinetic-trust-service==1.0.0'
+.venv/bin/python -m pip install 'kinetic-trust-service==2.1.0'
 ```
 
 For unreleased changes—or until the first release appears on PyPI—use sibling
@@ -100,10 +100,12 @@ python3 -m venv .venv
 .venv/bin/python -m pip install .
 ```
 
-Library and Service share a `major.minor` compatibility series, with independent
-patch versions. Service 1.0.0 depends on `kinetic-trust-library>=1.0.0,<1.1.0`
-and adds no other runtime dependencies or optional crypto dependency. These
-package versions are distinct from the KTP v2.1.0 specification version.
+Library and Service package `major.minor` versions track the implemented KTP
+RFC series, while each package advances patch versions independently. Service
+2.1.0 depends on `kinetic-trust-library>=2.1.0,<2.2.0` and adds no other runtime
+dependencies or optional crypto dependency. Both packages remain pinned to the
+immutable KTP v2.1.0 specification tag; a package patch release does not imply
+a new KTP specification version.
 PyCA Cryptography is needed only when a consumer chooses Library's optional
 PyCA crypto adapter. The Python
 interpreter running the library is sufficient; no separate interpreter
@@ -250,7 +252,7 @@ under review; it does not add sibling Library source to PYTHONPATH:
     "$WORK_DIR/venv/bin/python" -m build --wheel \
       --outdir "$WORK_DIR/library-dist" "$LIBRARY_CHECKOUT"
     "$WORK_DIR/venv/bin/python" -m pip install --no-index --no-deps \
-      "$WORK_DIR/library-dist/kinetic_trust_library-1.0.0-py3-none-any.whl"
+      "$WORK_DIR/library-dist/kinetic_trust_library-2.1.0-py3-none-any.whl"
     PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=src \
       "$WORK_DIR/venv/bin/python" -m unittest discover -s tests -t . -v
 
