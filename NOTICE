@@ -1,8 +1,8 @@
-Kinetic Trust Service 1.0.0
+Kinetic Trust Service 2.1.0
 Copyright 2026 Tamed Autonomy LLC
 
 This independent composition library is not an official KTP SDK. It is
-designed for use with Kinetic Trust Library 1.0.0, which profiles the Kinetic
+designed for use with Kinetic Trust Library 2.1.0, which profiles the Kinetic
 Trust Protocol (KTP) v2.1.0 specification at commit
 15520035267546e1035aad7beea0cc3cf9ef8f2c.
 NMCITRA does not certify, maintain, or endorse this implementation. This is a

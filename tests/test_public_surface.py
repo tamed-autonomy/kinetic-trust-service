@@ -25,11 +25,11 @@ SERVICE_EXPORTS = {
     "RejectedIssuance",
 }
 
-EXPECTED_SERVICE_NOTICE = """Kinetic Trust Service 1.0.0
+EXPECTED_SERVICE_NOTICE = """Kinetic Trust Service 2.1.0
 Copyright 2026 Tamed Autonomy LLC
 
 This independent composition library is not an official KTP SDK. It is
-designed for use with Kinetic Trust Library 1.0.0, which profiles the Kinetic
+designed for use with Kinetic Trust Library 2.1.0, which profiles the Kinetic
 Trust Protocol (KTP) v2.1.0 specification at commit
 15520035267546e1035aad7beea0cc3cf9ef8f2c.
 NMCITRA does not certify, maintain, or endorse this implementation. This is a
@@ -73,11 +73,11 @@ class PublicSurfaceTests(unittest.TestCase):
         project = metadata["project"]
         self.assertEqual(project["name"], "kinetic-trust-service")
         with self.subTest(metadata="version"):
-            self.assertEqual(project["version"], "1.0.0")
+            self.assertEqual(project["version"], "2.1.0")
         with self.subTest(metadata="dependencies"):
             self.assertEqual(
                 project["dependencies"],
-                ["kinetic-trust-library>=1.0.0,<1.1.0"],
+                ["kinetic-trust-library>=2.1.0,<2.2.0"],
             )
         self.assertEqual(project.get("optional-dependencies", {}), {})
         self.assertEqual(project["license"], "Apache-2.0")

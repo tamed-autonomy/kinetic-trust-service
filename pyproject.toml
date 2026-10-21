@@ -4,11 +4,11 @@ build-backend = "hatchling.build"
 
 [project]
 name = "kinetic-trust-service"
-version = "1.0.0"
+version = "2.1.0"
 description = "Synchronous KTP v2.1.0 evidence and issuance composition helpers"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = ["kinetic-trust-library>=1.0.0,<1.1.0"]
+dependencies = ["kinetic-trust-library>=2.1.0,<2.2.0"]
 license = "Apache-2.0"
 license-files = ["LICENSE", "NOTICE"]
 classifiers = [
