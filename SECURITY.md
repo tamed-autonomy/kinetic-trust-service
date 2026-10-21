@@ -2,8 +2,9 @@
 
 ## Supported versions
 
-The main branch is the only currently maintained line. No package release has
-been published.
+`main` and the latest published package release, if any, are maintained.
+Before the first package publication, this means `main` only. Older package
+releases do not receive routine fixes.
 
 ## Reporting a vulnerability
 

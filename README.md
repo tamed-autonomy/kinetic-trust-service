@@ -80,15 +80,24 @@ representing this summary as certification evidence.
 ## Install
 
 Python 3.11 or newer is required; the routinely tested support set is
-CPython 3.11 through 3.15. Neither Service nor Library is published.
-With sibling `kinetic-trust-service` and `kinetic-trust-library` checkouts,
-run from the Service checkout, installing Library first:
+CPython 3.11 through 3.15. When version 1.0.0 appears on the
+[PyPI project page](https://pypi.org/project/kinetic-trust-service/), install
+it in a local virtual environment; its compatible Library dependency is
+installed automatically:
 
 ```bash
 python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install ../kinetic-trust-library
-python -m pip install .
+.venv/bin/python -m pip install 'kinetic-trust-service==1.0.0'
+```
+
+For unreleased changes—or until the first release appears on PyPI—use sibling
+`kinetic-trust-service` and `kinetic-trust-library` checkouts. Run from the
+Service checkout, installing Library first:
+
+```bash
+python3 -m venv .venv
+.venv/bin/python -m pip install ../kinetic-trust-library
+.venv/bin/python -m pip install .
 ```
 
 Library and Service share a `major.minor` compatibility series, with independent
@@ -247,6 +256,9 @@ under review; it does not add sibling Library source to PYTHONPATH:
 
 The suite does not require PyCA. Products choosing Library's optional PyCA
 provider install and test it separately.
+
+Maintainers preparing a package publication must follow the
+[PyPI release procedure](https://github.com/tamed-autonomy/kinetic-trust-service/blob/main/docs/releasing.md).
 
 ## Contributing and security
 
